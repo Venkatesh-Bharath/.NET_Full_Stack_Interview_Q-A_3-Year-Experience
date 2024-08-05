@@ -1431,4 +1431,4 @@
     ```
 
 100. **What are some common pitfalls to avoid in ASP.NET Core development?**
-    - Common pitfalls include not properly handling exceptions, not validating input, overusing synchronous operations, misconfiguring dependency injection, ignoring security best practices, and not optimizing performance.
+   - Common pitfalls include not properly handling exceptions, not validating input, overusing synchronous operations, misconfiguring dependency injection, ignoring security best practices, and not optimizing performance.
