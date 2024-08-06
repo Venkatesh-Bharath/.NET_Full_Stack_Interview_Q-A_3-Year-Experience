@@ -194,32 +194,140 @@
 
 ## ASP.NET Core and Related Concepts
 
-1. **How do you create a registration service in ASP.NET Core Web API?**
-   - **Answer:**
-     ```csharp
-     [ApiController]
-     [Route("api/[controller]")]
-     public class RegistrationController : ControllerBase
-     {
-         private readonly IUserService _userService;
-         
-         public RegistrationController(IUserService userService)
-         {
-             _userService = userService;
-         }
+1. **How do you create a registration service layer in ASP.NET Core Web API?**
+  - To create a registration service layer in ASP.NET Core Web API, follow these steps:
+**User.cs** (Entity Model)
+```csharp
+public class User
+{
+    public int Id { get; set; }
+    public string Username { get; set; }
+    public string PasswordHash { get; set; }
+    public string Email { get; set; }
+}
+```
 
-         [HttpPost]
-         public async Task<IActionResult> Register(UserDto userDto)
-         {
-             var result = await _userService.RegisterUserAsync(userDto);
-             if (result.Succeeded)
-             {
-                 return Ok(result);
-             }
-             return BadRequest(result.Errors);
-         }
-     }
-     ```
+**UserDto.cs** (Data Transfer Object)
+```csharp
+public class UserDto
+{
+    public string Username { get; set; }
+    public string Password { get; set; }
+    public string Email { get; set; }
+}
+```
+
+### 2. **Create the User Service Interface**
+
+**IUserService.cs**
+```csharp
+public interface IUserService
+{
+    Task<RegistrationResult> RegisterUserAsync(UserDto userDto);
+}
+```
+
+### 3. **Create the User Service Implementation**
+
+**UserService.cs**
+```csharp
+public class UserService : IUserService
+{
+    private readonly ApplicationDbContext _context;
+    private readonly IPasswordHasher<User> _passwordHasher;
+
+    public UserService(ApplicationDbContext context, IPasswordHasher<User> passwordHasher)
+    {
+        _context = context;
+        _passwordHasher = passwordHasher;
+    }
+
+    public async Task<RegistrationResult> RegisterUserAsync(UserDto userDto)
+    {
+        var existingUser = await _context.Users
+                                         .AnyAsync(u => u.Username == userDto.Username || u.Email == userDto.Email);
+
+        if (existingUser)
+        {
+            return new RegistrationResult { Success = false, Message = "Username or email already in use." };
+        }
+
+        var user = new User
+        {
+            Username = userDto.Username,
+            Email = userDto.Email,
+            PasswordHash = _passwordHasher.HashPassword(null, userDto.Password)
+        };
+
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        return new RegistrationResult { Success = true, Message = "User registered successfully." };
+    }
+}
+```
+
+**RegistrationResult.cs** (Result Model)
+```csharp
+public class RegistrationResult
+{
+    public bool Success { get; set; }
+    public string Message { get; set; }
+}
+```
+
+### 4. **Register the Service in Dependency Injection**
+
+**Program.cs**
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllers();
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+app.UseRouting();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
+
+app.Run();
+```
+
+### 5. **Create the API Controller**
+
+**RegistrationController.cs**
+```csharp
+[ApiController]
+[Route("api/[controller]")]
+public class RegistrationController : ControllerBase
+{
+    private readonly IUserService _userService;
+
+    public RegistrationController(IUserService userService)
+    {
+        _userService = userService;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Register(UserDto userDto)
+    {
+        var result = await _userService.RegisterUserAsync(userDto);
+        if (result.Success)
+        {
+            return Ok(result);
+        }
+        return BadRequest(result.Message);
+    }
+}
+```
 
 2. **What is `DbContext` and `DbSet` in Entity Framework?**
    - **Answer:**
