@@ -939,153 +939,277 @@
 ## Data Access Questions
 
 69. **What is ADO.NET?**
-   - ADO.NET is a set of classes in the .NET Framework for accessing and manipulating databases, providing a way to connect to data sources, execute commands, and retrieve results.
+
+- ADO.NET is a data access technology in .NET that provides a set of classes to interact with data sources such as databases and XML files. It allows for efficient data retrieval and manipulation.
 
 70. **Explain the difference between connected and disconnected architecture.**
-   - **Connected Architecture**: Maintains an open connection to the database. Examples include `SqlDataReader`.
-   - **Disconnected Architecture**: Opens a connection to the database only temporarily and works with data offline. Examples include `DataSet` and `DataTable`.
+
+- **Connected Architecture**: Maintains a continuous connection to the data source. Suitable for real-time data operations.
+- **Disconnected Architecture**: Retrieves data, performs operations on it without a continuous connection to the data source, and updates the data source in batch operations.
 
 71. **What are data adapters and data readers?**
-   - **Data Adapter**: Fills a `DataSet` and updates the data source. Acts as a bridge between a `DataSet` and a data source.
-   - **Data Reader**: Provides a forward-only, read-only cursor for retrieving data efficiently. Examples include `SqlDataReader`.
+
+- **Data Adapter**: Acts as a bridge between a DataSet and a data source for retrieving and saving data. Works in disconnected architecture.
+- **Data Reader**: Provides a fast, forward-only, read-only cursor to read data from a data source. Works in connected architecture.
+
+   ```csharp
+   SqlDataReader reader = command.ExecuteReader();
+   while (reader.Read())
+   {
+       Console.WriteLine(reader["ColumnName"]);
+   }
+   ```
 
 72. **What is a connection string?**
-   - A connection string is a string used to specify information about a data source and how to connect to it, including server name, database name, user credentials, and other parameters.
+
+- A connection string is a string that specifies information about a data source and how to connect to it. It includes parameters like the data source, database name, user ID, and password.
+
+   ```csharp
+   string connectionString = "Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=myPassword;";
+   ```
 
 73. **What is the purpose of the SqlCommand object?**
-   - `SqlCommand` is used to execute SQL commands against a SQL Server database. It can perform operations such as queries, updates, and stored procedure calls.
+
+- The `SqlCommand` object is used to execute SQL queries and commands against a SQL Server database. It can execute queries that return data (e.g., SELECT) or commands that modify data (e.g., INSERT, UPDATE, DELETE).
+
+   ```csharp
+   SqlCommand command = new SqlCommand("SELECT * FROM Table", connection);
+   ```
 
 74. **What is the difference between ExecuteNonQuery, ExecuteScalar, and ExecuteReader?**
-   - **ExecuteNonQuery**: Executes a command that does not return any results (e.g., INSERT, UPDATE, DELETE). Returns the number of rows affected.
-   - **ExecuteScalar**: Executes a command that returns a single value (e.g., aggregate functions). Returns the first column of the first row.
-   - **ExecuteReader**: Executes a command that returns a `SqlDataReader` for reading multiple rows of data.
+
+- **ExecuteNonQuery**: Executes a command that does not return any data, such as INSERT, UPDATE, or DELETE.
+  
+  ```csharp
+  int rowsAffected = command.ExecuteNonQuery();
+  ```
+
+- **ExecuteScalar**: Executes a query and returns a single value.
+
+  ```csharp
+  object result = command.ExecuteScalar();
+  ```
+
+- **ExecuteReader**: Executes a query that returns rows of data.
+
+  ```csharp
+  SqlDataReader reader = command.ExecuteReader();
+  ```
 
 ## Web Services and APIs Questions
 
 75. **What are web services?**
-   - Web services are standardized ways to enable communication between applications over the internet, typically using protocols such as HTTP, and can be accessed through APIs.
+
+- Web services are software applications that can be accessed over the internet using standard protocols such as HTTP. They allow different applications to communicate with each other.
 
 76. **Explain the difference between SOAP and REST.**
-   - **SOAP**: Protocol-based, uses XML for messaging, and is often used for enterprise-level applications requiring strict security and transaction compliance.
-   - **REST**: Architectural style, uses standard HTTP methods (GET, POST, PUT, DELETE), and can return data in various formats (XML, JSON). It is simpler and more flexible.
+
+- **SOAP (Simple Object Access Protocol)**: A protocol for exchanging structured information in web services. Uses XML for message format.
+- **REST (Representational State Transfer)**: An architectural style for designing networked applications. Uses standard HTTP methods (GET, POST, PUT, DELETE) and can use various formats like JSON and XML.
 
 77. **What is WCF?**
-   - Windows Communication Foundation (WCF) is a framework for building service-oriented applications, enabling communication between distributed systems using various protocols (HTTP, TCP, MSMQ, etc.).
+
+- WCF (Windows Communication Foundation) is a framework for building service-oriented applications. It enables developers to build secure, reliable, and high-performance services that can be integrated across platforms.
 
 78. **What is Web API?**
-   - Web API is a framework for building HTTP-based services, allowing applications to communicate over the web using RESTful principles and typically returning data in JSON or XML format.
+
+- Web API is a framework for building HTTP services that can be consumed by various clients, including browsers and mobile devices. It supports RESTful services and can return data in formats like JSON and XML.
 
 79. **How do you handle authentication in Web API?**
-   - Authentication in Web API can be handled using various methods such as:
-     - **Basic Authentication**
-     - **OAuth**
-     - **JWT (JSON Web Tokens)**
-     - **API Keys**
+
+- Authentication in Web API can be handled using various methods such as:
+- **Basic Authentication**
+- **Token-based Authentication (e.g., JWT)**
+- **OAuth**
+
+   ```csharp
+   [Authorize]
+   public class ValuesController : ApiController
+   {
+       public IHttpActionResult Get()
+       {
+           return Ok("Authenticated");
+       }
+   }
+   ```
 
 80. **What is CORS and why is it important?**
-   - Cross-Origin Resource Sharing (CORS) is a security feature that allows or restricts resources on a web page to be requested from another domain. It is important to prevent unauthorized access and protect web services.
+
+- CORS (Cross-Origin Resource Sharing) is a mechanism that allows restricted resources on a web page to be requested from another domain outside the domain from which the resource originated. It's important for enabling secure cross-domain data sharing.
+
+   ```csharp
+   public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+   {
+       app.UseCors(builder => builder
+           .AllowAnyOrigin()
+           .AllowAnyMethod()
+           .AllowAnyHeader());
+   }
+   ```
 
 ## Miscellaneous Questions
 
 81. **What is the dynamic keyword in C#?**
-   - The `dynamic` keyword allows for late binding, meaning the type is determined at runtime rather than compile time. It is used when the type of an object is not known until runtime.
+
+- The `dynamic` keyword allows variables to bypass compile-time type checking, meaning their type is resolved at runtime.
+
+   ```csharp
+   dynamic dynamicVariable = "Hello";
+   dynamicVariable = 10; // No compile-time error
+   ```
 
 82. **What are value types and reference types?**
-   - **Value Types**: Hold data directly and include types such as `int`, `float`, `char`, and structs. They are stored on the stack.
-   - **Reference Types**: Hold references to the data, which is stored on the heap. Examples include `class`, `string`, and arrays.
 
-83. **What is the difference between `==` and `Equals` method?**
-   - **`==`**: Compares object references or primitive values for equality.
-   - **`Equals`**: Can be overridden in classes to define what equality means for that class. It can be used to compare the content of objects.
+- **Value Types**: Stored in the stack, hold the data directly.
+  
+  ```csharp
+  int a = 10; // Value type
+  ```
+
+- **Reference Types**: Stored in the heap, hold a reference to the data.
+
+  ```csharp
+  string s = "Hello"; // Reference type
+  ```
+
+83. **What is the difference between == and Equals method?**
+
+- **==**: Compares the values of objects.
+- **Equals**: Compares the contents or state of objects.
+
+   ```csharp
+   string a = "hello";
+   string b = "hello";
+   bool result = (a == b); // True
+   bool result2 = a.Equals(b); // True
+   ```
 
 84. **Explain the purpose of the Nullable type.**
-   - The Nullable type allows value types to represent undefined or missing values. It is useful for dealing with databases or other situations where a value might be absent.
 
-    ```csharp
-    int? nullableInt = null;
-    ```
+- The `Nullable` type allows value types to represent undefined or missing values.
 
-85. **What is the difference between `String` and `StringBuilder`?**
-   - **`String`**: Immutable; any modification creates a new string object.
-   - **`StringBuilder`**: Mutable; used for scenarios where strings are frequently modified, offering better performance for concatenation and other operations.
+   ```csharp
+   int? age = null;
+   ```
+
+85. **What is the difference between String and StringBuilder?**
+
+- **String**: Immutable, each modification creates a new instance.
+  
+  ```csharp
+  string str = "Hello";
+  str += " World"; // New instance created
+  ```
+
+- **StringBuilder**: Mutable, modifications do not create new instances.
+
+  ```csharp
+  StringBuilder sb = new StringBuilder("Hello");
+  sb.Append(" World"); // No new instance
+  ```
 
 86. **Explain the concept of type conversion and type casting.**
-   - **Type Conversion**: Implicit or explicit conversion between types. Examples include converting between `int` and `double`.
-   - **Type Casting**: Explicitly changing an object from one type to another, often using casting operators or methods.
 
-    ```csharp
-    int number = (int)3.14; // Casting
-    ```
+- **Type Conversion**: Converting one data type to another.
+
+  ```csharp
+  int num = Convert.ToInt32("123");
+  ```
+
+- **Type Casting**: Forcing a variable to be of another type.
+
+  ```csharp
+  double d = 123.45;
+  int i = (int)d;
+  ```
 
 87. **What is the enum type in C#?**
-   - An `enum` (enumeration) is a distinct value type that defines a set of named constants. It improves code readability and maintainability by using meaningful names for integer values.
 
-    ```csharp
-    enum Day { Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday }
-    ```
+- An `enum` is a distinct value type that consists of a set of named constants called enumerators.
+
+   ```csharp
+   enum Days { Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday }
+   ```
 
 88. **What are tuples in C#?**
-   - Tuples are a data structure that can hold a fixed number of items of different types. They are used to return multiple values from a method.
 
-    ```csharp
-    var tuple = Tuple.Create(1, "example", 3.14);
-    ```
+- Tuples provide a way to store multiple values in a single data structure.
+
+   ```csharp
+   var tuple = (1, "Hello", true);
+   ```
 
 89. **What is the purpose of the Partial keyword?**
-   - The `partial` keyword allows a class, struct, or interface to be split across multiple files. It helps in organizing code and can be useful in scenarios like auto-generated code.
 
-    ```csharp
-    // File1.cs
-    partial class MyClass { }
+- The `partial` keyword allows the definition of a class, struct, or method to be split across multiple files.
 
-    // File2.cs
-    partial class MyClass { }
-    ```
+   ```csharp
+   partial class MyClass
+   {
+       public void Method1() { }
+   }
+   ```
 
 90. **What are attributes in C#?**
-   - Attributes are metadata added to code elements (classes, methods, properties) that provide additional information at runtime. They are used for things like marking methods for serialization or validation.
 
-    ```csharp
-    [Obsolete("This method is obsolete")]
-    public void OldMethod() { }
-    ```
+- Attributes provide a way to add metadata to code elements such as classes, methods, and properties.
+
+   ```csharp
+   [Obsolete("This method is obsolete.")]
+   public void OldMethod() { }
+   ```
 
 ## Best Practices and Coding Standards Questions
 
 91. **What are coding standards and why are they important?**
-   - Coding standards are a set of guidelines and best practices for writing code. They ensure consistency, readability, and maintainability across a codebase, making it easier to understand and work with.
+
+- Coding standards are guidelines for writing code in a consistent manner. They are important for readability, maintainability, and reducing errors.
 
 92. **Explain the concept of SOLID principles.**
-   - SOLID is an acronym for five design principles that help create more understandable, flexible, and maintainable software:
-     - **S**: Single Responsibility Principle
-     - **O**: Open/Closed Principle
-     - **L**: Liskov Substitution Principle
-     - **I**: Interface Segregation Principle
-     - **D**: Dependency Inversion Principle
+
+- **S**: Single Responsibility Principle
+- **O**: Open/Closed Principle
+- **L**: Liskov Substitution Principle
+- **I**: Interface Segregation Principle
+- **D**: Dependency Inversion Principle
 
 93. **What are naming conventions in C#?**
-   - Naming conventions are guidelines for naming variables, methods, classes, and other code elements. They improve readability and maintainability. For example:
-     - Classes: PascalCase
-     - Methods: PascalCase
-     - Variables: camelCase
+
+- Naming conventions are a set of rules for naming variables, methods, classes, etc. in a consistent manner. For example, using PascalCase for class names and camelCase for variables.
 
 94. **What is the purpose of code comments?**
-   - Code comments provide explanations and context for code, helping other developers (or your future self) understand the purpose and functionality of the code. They improve readability and maintainability.
+
+- Code comments are used to explain and document code. They help others (and yourself) understand the code better.
+
+   ```csharp
+   // This is a single-line comment
+
+   /*
+   This is a
+   multi-line comment
+   */
+   ```
 
 95. **What are code smells?**
-   - Code smells are signs of potential problems in code that may indicate underlying issues, such as poor design or maintenance difficulties. Examples include long methods, large classes, and duplicated code.
+
+- Code smells are indicators of potential problems in the code that may affect its readability, maintainability, and performance.
 
 96. **What is refactoring?**
-   - Refactoring is the process of restructuring existing code without changing its external behavior to improve readability, maintainability, and performance.
+
+- Refactoring is the process of improving the structure and readability of existing code without changing its behavior.
 
 97. **What is the purpose of code reviews?**
-   - Code reviews are conducted to ensure code quality, find bugs, and improve the overall design by having peers examine the code before it is merged. They also help in knowledge sharing and adherence to coding standards.
+
+- Code reviews are a process where peers review code to find errors, improve quality, and ensure adherence to coding standards.
 
 98. **Explain the DRY principle.**
-   - DRY (Don't Repeat Yourself) is a principle that encourages reducing duplication in code. Instead of duplicating code, common functionality should be abstracted into reusable methods or components.
+
+- DRY (Don't Repeat Yourself) principle states that every piece of knowledge should be expressed only once in the codebase to avoid redundancy.
 
 99. **What is YAGNI?**
-   - YAGNI (You Aren't Gonna Need It) is a principle that advises against adding functionality until it is actually needed. It helps in avoiding over-engineering and keeps the codebase simpler.
+
+- YAGNI (You Aren't Gonna Need It) is a principle that states you should not add functionality until it is necessary.
 
 100. **What is KISS?**
-   - KISS (Keep It Simple, Stupid) is a principle that emphasizes simplicity in design. The idea is to keep the solution as simple as possible to improve understanding and maintenance.
+
+- KISS (Keep It Simple, Stupid) is a principle that emphasizes simplicity in design and implementation. The idea is to avoid unnecessary complexity.
